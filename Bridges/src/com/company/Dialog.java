@@ -30,12 +30,10 @@ public class Dialog extends JFrame{
             @Override
             public void actionPerformed(ActionEvent e) {
 
-                String[][] FILTERS = {{"docx", "Файлы Word (*.docx)"},
-                        {"pdf" , "Adobe Reader(*.pdf)"}};
+                String[][] FILTERS = {{"docx", "Файлы Word (*.docx)"}, {"pdf" , "Adobe Reader(*.pdf)"}};
                 JFileChooser fc = new JFileChooser();
                 fc.setDialogTitle("Выберите файл");
-                FileNameExtensionFilter filter = new FileNameExtensionFilter(
-                        "XML", "xml");
+                FileNameExtensionFilter filter = new FileNameExtensionFilter("XML", "xml");
                 fc.setFileFilter(filter);
                 // Определяем фильтры типов файлов
                 // Определение режима - только файл
@@ -51,9 +49,9 @@ public class Dialog extends JFrame{
             @Override
             public void actionPerformed(ActionEvent e) {
                 System.out.println(FuckThisShit.getText());
-                if(FuckThisShit.getText() == ""){
+                if(FuckThisShit.getText().isEmpty()){
                     int c = (Integer) spinner1.getValue();
-                    if(c >= 1 && c <= 10) {
+                    if(c >= 1 && c <= 300) {
                         dia.dispose();
                         Main.createWindow(c);
                     }
