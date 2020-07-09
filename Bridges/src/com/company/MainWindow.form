@@ -45,12 +45,12 @@
                   <text value="Количество мостов:"/>
                 </properties>
               </component>
-              <component id="77753" class="javax.swing.JButton" binding="addEdge">
+              <component id="77753" class="javax.swing.JButton" binding="addVertex">
                 <constraints>
                   <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
-                  <text value="Добавить ребро"/>
+                  <text value="Добавить вершину"/>
                 </properties>
               </component>
               <component id="b6c0e" class="javax.swing.JButton" binding="delEdge">
@@ -63,18 +63,10 @@
               </component>
               <component id="e085b" class="javax.swing.JButton" binding="delBridges">
                 <constraints>
-                  <grid row="5" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
-                </constraints>
-                <properties>
-                  <text value="Удалить мосты"/>
-                </properties>
-              </component>
-              <component id="f9394" class="javax.swing.JButton" binding="findBridges">
-                <constraints>
                   <grid row="6" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
-                  <text value="Найти мосты"/>
+                  <text value="Удалить мосты"/>
                 </properties>
               </component>
               <vspacer id="715fc">
@@ -95,6 +87,14 @@
                   <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
                 </constraints>
               </vspacer>
+              <component id="f9394" class="javax.swing.JButton" binding="findBridges">
+                <constraints>
+                  <grid row="5" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="Найти мосты"/>
+                </properties>
+              </component>
             </children>
           </grid>
           <grid id="20515" binding="panelGraph" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
@@ -117,10 +117,13 @@
                   </grid>
                 </constraints>
                 <properties>
+                  <antiAlias value="false"/>
                   <autoExtend value="false"/>
-                  <connectable value="false"/>
+                  <autoScroll value="false"/>
+                  <connectable value="true"/>
                   <dragEnabled value="false"/>
                   <enabled value="true"/>
+                  <gridVisible value="false"/>
                 </properties>
                 <border type="none"/>
                 <children/>
