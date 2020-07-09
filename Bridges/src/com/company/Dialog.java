@@ -21,6 +21,7 @@ public class Dialog extends JFrame{
         dia.setContentPane(DialogPanel);
         dia.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         dia.pack();
+        dia.setResizable(false);
         dia.setVisible(true);
         loadGraph.addActionListener(new ActionListener() {
             @Override
