@@ -42,15 +42,15 @@
         <properties/>
         <border type="none"/>
         <children>
-          <component id="c2826" class="javax.swing.JTextField" binding="FuckThisShit">
+          <component id="c2826" class="javax.swing.JTextField" binding="cUsersUsernameDesktopTextField" default-binding="true">
             <constraints>
               <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
                 <preferred-size width="150" height="-1"/>
               </grid>
             </constraints>
             <properties>
-              <editable value="false"/>
-              <text value=""/>
+              <editable value="true"/>
+              <text value="C:\\Program Files\\testFile.txt"/>
             </properties>
           </component>
           <component id="4959d" class="javax.swing.JButton" binding="loadGraph">
