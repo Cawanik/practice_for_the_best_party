@@ -31,6 +31,7 @@ public class MainWindow {
     //вершины и их рёбра в vertexCommunication вершина - ключ, id ребра - значение
     HashMap<Integer, List<Integer>> vertexCommunication = new HashMap<Integer, List<Integer>>();
     private int time;
+    private int rememberLength;
     private boolean[] used;
     private int[] fup;
     private int[] tin;
@@ -182,10 +183,59 @@ public class MainWindow {
         delEdge.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                Object[] q= graph.getChildCells(parent);
+                Object[] edgesOfVertex;
+                Object[] q = graph.getChildCells(parent);
+                for(int i = 0; i < q.length; i++){
+                    mxCell tmp = (mxCell) q[i];
+                    if(tmp.isVertex()) {
+                        //создаём имя вершины
+                        int vertex = Integer.parseInt(tmp.getId()) - 1;
+                        addVertex(vertex);
+                        //создаём список для каждой вершины, туда поместим рёбра
+                        vertexCommunication.put(vertex, new ArrayList<Integer>());
+                        //получаем рёбра
+                        edgesOfVertex = graph.getEdges(tmp);
+                        for (int f = 0; f < edgesOfVertex.length;f++){
+                            mxCell tmp2 = (mxCell) edgesOfVertex[f];
+                            //создаём имя ребра
+                            int edge = Integer.parseInt(tmp2.getId());
+                            //переменный массив рёбер для добавления
+                            List<Integer> edges = vertexCommunication.get(vertex);
+                            //добавим ребро в промежуточный список и отсортируем
+                            edges.add(edge);
+                            Collections.sort(edges);
+                            //добавим полученный список в карту
+                            vertexCommunication.put(vertex, edges);
+                        }
+                        //System.out.println(vertexCommunication);
+                        //System.out.println();
+                    }
+                }
+
+                //создание списка смежности
+                for (Map.Entry<Integer, List<Integer>> entry : vertexCommunication.entrySet()) {
+                    //текущий список рёбер
+                    List<Integer> tmp = entry.getValue();
+                    for (Map.Entry<Integer, List<Integer>> entry2 : vertexCommunication.entrySet()) {
+                        //необходимо пройтись по списку, чтобы узнать какие рёбра являются общими
+                        for (int i = 0; i < tmp.size(); i++) {
+                            //если ключи не равны и ребро содержится в другом списке
+                            if (!entry2.getKey().equals(entry.getKey()) && entry2.getValue().contains(tmp.get(i))) {
+                                addVertex(entry.getKey());
+                                if (vertexMap.get(entry.getKey()).contains(entry2.getKey())) {
+                                    continue;
+                                }
+                                addEdge(entry.getKey(), entry2.getKey());
+                            }
+                        }
+                    }
+                }
+                System.out.println(vertexMap);
+                q= graph.getChildCells(parent);
                 mxCell[] onDel = new mxCell[q.length];
                 int tmp = 0;
                 System.out.println(q.length);
+
                 for(Object c: q){
 
                     mxCell cell = (mxCell) c;
@@ -194,23 +244,28 @@ public class MainWindow {
                         System.out.println(c.toString());
                     }
                     else {
-                        //System.out.println("Edge");
                         if(graph.isCellSelected(cell)){
                             onDel[tmp++] = cell;
-                            //System.out.println(graph.isCellDeletable(cell));
-                            //System.out.println(cell.toString());
+                            int id = Integer.parseInt(cell.getId());
+                            for(Map.Entry<Integer, List<Integer>> info : vertexCommunication.entrySet()) {
+                                for(Map.Entry<Integer, List<Integer>> info2 : vertexCommunication.entrySet()) {
+                                    if (info.getValue().contains(id) && info2.getValue().contains(id) &&
+                                            !info2.getKey().equals(info.getKey())) {
+                                        vertexMap.get(info2.getKey()).remove(info.getKey());
+                                        vertexMap.get(info.getKey()).remove(info2.getKey());
+                                        printGraph();
+                                    }
+                                    //System.out.println(vertexCommunication);
+                                }
+                            }
                         }
-
-                        //graph.removeSelectionCell();
-
                     }
                 }
                 graph.cellsRemoved(onDel);
-                //graph.removeSelectionCells(graph.getSelectionCells());
-                System.out.println(onDel.length);
                 for (int i = 0; i < tmp; i++) {
                     onDel[i].setParent(null);
                 }
+                printGraph();
             }
         });
         delBridges.addActionListener(new ActionListener() {
@@ -265,8 +320,10 @@ public class MainWindow {
                 }
                 printGraph();
                 deleteBridges();
+                deleteBridges();
                 printBridges();
                 printGraph();
+                rememberLength = 0;
                 bridges.clear();
             }
         });
@@ -388,9 +445,10 @@ public class MainWindow {
             }
         }
         graph.cellsRemoved(onDel);
-        for (int i = 0; i < onDel.length; i++) {
+        for (int i = 0; i < onDel.length - rememberLength; i++) {
             onDel[i].setParent(null);
         }
+        rememberLength = onDel.length;
     }
 
     private void createUIComponents() {
