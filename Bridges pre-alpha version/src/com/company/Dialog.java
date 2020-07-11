@@ -1,7 +1,13 @@
 package com.company;
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLEncoder;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 public class Dialog extends JFrame{
@@ -11,6 +17,8 @@ public class Dialog extends JFrame{
     private JButton OKButton;
     private JLabel Lbl1;
     private JTextField TextLabelDisabled;
+    private JButton infoButton;
+    private JButton сказатьСпасибоButton;
 
     Dialog(String a) {
 
@@ -20,6 +28,7 @@ public class Dialog extends JFrame{
         dia.pack();
         dia.setResizable(false);
         dia.setVisible(true);
+        dia.getRootPane().setDefaultButton(OKButton);
         loadGraph.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -53,6 +62,34 @@ public class Dialog extends JFrame{
                 }else{
                     dia.dispose();
                     Main.createWindow(TextLabelDisabled.getText());
+                }
+
+            }
+        });
+        infoButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JOptionPane.showMessageDialog(dia, new String[] {"Наш репозиторий: https://github.com/Cawanik/practice_for_the_best_party",
+                        " - Александр Никитин (Cawanik) - ответственен за визуализацию",
+                        " - Анастасия Наконечная (LangerKrieg) - ответственна за функции работы с графом",
+                        " - Анастасия Бердникова (Anstberd) - ответственна за документацию и тестирование"},
+
+                        "Информация",
+                        JOptionPane.INFORMATION_MESSAGE);
+
+            }
+        });
+        сказатьСпасибоButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    Desktop d=Desktop.getDesktop();
+
+                    d.browse(new URI("https://vk.me/join/AJQ1d3iZGhi7Vs5WGpiv6vjV"));
+                } catch (IOException ioe) {
+                    ioe.printStackTrace();
+                } catch (URISyntaxException use) {
+                    use.printStackTrace();
                 }
 
             }

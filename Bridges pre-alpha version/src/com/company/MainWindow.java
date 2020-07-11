@@ -2,7 +2,6 @@ package com.company;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
-import java.awt.*;
 import java.io.FileWriter;
 import java.lang.Object;
 import java.awt.event.ActionEvent;
@@ -11,18 +10,15 @@ import java.io.File;
 import java.util.*;
 import java.util.List;
 
-import static com.mxgraph.util.mxXmlUtils.getXml;
-import static com.mxgraph.util.mxXmlUtils.parseXml;
+import static java.lang.Math.PI;
 import static java.lang.Math.min;
 import com.mxgraph.io.mxCodec;
 import com.mxgraph.model.mxCell;
-import com.mxgraph.model.mxICell;
 import com.mxgraph.swing.mxGraphComponent;
 import com.mxgraph.util.mxConstants;
 import com.mxgraph.util.mxUtils;
 import com.mxgraph.util.mxXmlUtils;
-import com.mxgraph.view.mxGraph;
-import com.mxgraph.view.mxStylesheet;
+import com.mxgraph.view.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
@@ -40,7 +36,7 @@ public class MainWindow {
     private int sizeOfBridges;
 
     private JPanel fld;
-    private JButton addVertexButton;
+    private JButton stepByStepButton;
     private JButton delEdge;
     private JButton delBridges;
     private JButton findBridges;
@@ -60,23 +56,7 @@ public class MainWindow {
     MainWindow(String a) {
 
         //Установка стилей
-        mxStylesheet stl = new mxStylesheet();
-
-        var styleTmp = graph.getStylesheet().getDefaultVertexStyle();
-        styleTmp.put(mxConstants.STYLE_SHAPE, mxConstants.SHAPE_ELLIPSE) ;
-        styleTmp.put(mxConstants.STYLE_FONTCOLOR, "#000000");
-
-
-        stl.setDefaultVertexStyle(styleTmp);
-
-        styleTmp = graph.getStylesheet().getDefaultEdgeStyle();
-        styleTmp.put(mxConstants.STYLE_ENDARROW, mxConstants.NONE);
-
-        stl.setDefaultEdgeStyle(styleTmp);
-
-        graph.setStylesheet(stl);
-        graph.setAllowDanglingEdges(false);
-        System.out.println(parent);
+        setStyleGraph();
         //------------------------------------------
         try
         {
@@ -87,9 +67,11 @@ public class MainWindow {
         }
         catch (Exception ex)
         {
-            ex.printStackTrace();
+            JOptionPane.showMessageDialog(dia, "Файл поврежден", "Ошибка", JOptionPane.ERROR_MESSAGE);
+            dia.getDefaultCloseOperation();
         }
         parent = graph.getDefaultParent();
+
         setAction();
         JFrame dia = new JFrame("Граф");
         dia.setResizable(false);
@@ -99,25 +81,12 @@ public class MainWindow {
         dia.setVisible(true);
 
 
+
     }
     MainWindow(int a) {
         //НАЧАЛО ГРАФА
         //Установка стилей
-        mxStylesheet stl = new mxStylesheet();
-
-        var styleTmp = graph.getStylesheet().getDefaultVertexStyle();
-        styleTmp.put(mxConstants.STYLE_SHAPE, mxConstants.SHAPE_ELLIPSE) ;
-        styleTmp.put(mxConstants.STYLE_FONTCOLOR, "#000000");
-
-
-        stl.setDefaultVertexStyle(styleTmp);
-
-        styleTmp = graph.getStylesheet().getDefaultEdgeStyle();
-        styleTmp.put(mxConstants.STYLE_ENDARROW, mxConstants.NONE);
-
-        stl.setDefaultEdgeStyle(styleTmp);
-
-        graph.setStylesheet(stl);
+        setStyleGraph();
         //---------------------------------
         //Вставка вершин
 
@@ -137,7 +106,7 @@ public class MainWindow {
 
         graph.getModel().endUpdate();
         //---------------------------------
-        graph.setAllowDanglingEdges(false);
+
         //КОНЕЦ ГРАФА
 
         setAction();
@@ -148,10 +117,90 @@ public class MainWindow {
         dia.pack();
         dia.setVisible(true);
 
+
+    }
+
+    private  void setStyleGraph(){
+        mxStylesheet stl = new mxStylesheet();
+        Map<String,Object> bridgeEdge = new HashMap<>();
+        bridgeEdge.put(mxConstants.STYLE_STROKECOLOR, "#FF0000");
+        bridgeEdge.put(mxConstants.STYLE_ENDARROW, mxConstants.NONE);
+        bridgeEdge.put(mxConstants.STYLE_SHAPE, mxConstants.SHAPE_CONNECTOR);
+        bridgeEdge.put(mxConstants.STYLE_FONTCOLOR, "#446299");
+        bridgeEdge.put(mxConstants.STYLE_ALIGN, mxConstants.ALIGN_CENTER);
+        bridgeEdge.put(mxConstants.STYLE_VERTICAL_ALIGN, mxConstants.ALIGN_MIDDLE);
+        mxStyleRegistry.putValue("bridgeEdge", bridgeEdge);
+        stl.putCellStyle("bridgeEdge", bridgeEdge);
+
+        Map<String,Object> isStepOf = new HashMap<>();
+        isStepOf.put(mxConstants.STYLE_STROKECOLOR, "#FF00FF");
+        isStepOf.put(mxConstants.STYLE_ENDARROW, mxConstants.NONE);
+        isStepOf.put(mxConstants.STYLE_SHAPE, mxConstants.SHAPE_CONNECTOR);
+        isStepOf.put(mxConstants.STYLE_FONTCOLOR, "#446299");
+        isStepOf.put(mxConstants.STYLE_ALIGN, mxConstants.ALIGN_CENTER);
+        isStepOf.put(mxConstants.STYLE_VERTICAL_ALIGN, mxConstants.ALIGN_MIDDLE);
+        mxStyleRegistry.putValue("isStepOf", isStepOf);
+        stl.putCellStyle("isStepOf", isStepOf);
+
+        var styleTmp = stl.getDefaultVertexStyle();
+        styleTmp.put(mxConstants.STYLE_SHAPE, mxConstants.SHAPE_ELLIPSE) ;
+        styleTmp.put(mxConstants.STYLE_FONTCOLOR, "#000000");
+
+
+
+        var styleTmp1 = stl.getDefaultEdgeStyle();
+        styleTmp1.put(mxConstants.STYLE_STROKECOLOR, "#000000");
+        styleTmp1.put(mxConstants.STYLE_ENDARROW, mxConstants.NONE);
+
+
+        graph.setStylesheet(stl);
+        System.out.println(graph.getStylesheet().getStyles());
+        graph.setAllowDanglingEdges(false);
+
+
+    }
+    private void setStyleMasBridgesGraphics(){
+        try {
+            graph.refresh();
+
+            for (int i = 0; i < bridgesGraphics.length; i++) {
+                mxCell a = (mxCell) bridgesGraphics[i];
+                a.setStyle("bridgeEdge");
+            }
+            graph.repaint();
+            graph.refresh();
+            System.out.println(mxStyleRegistry.getValue("bridgeEdge"));
+        }catch (Exception e){
+            JOptionPane.showMessageDialog(dia, "Невозможно присвоить стиль 'bridgeEdge'", "Ошибка", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+    private void setStyleIsStepOf(){
+        try {
+            graph.refresh();
+
+            for(int i = 0; i < bridgesGraphics.length; i++){
+                mxCell a = (mxCell) bridgesGraphics[i];
+                a.setStyle("isStepOf");
+            }
+            graph.repaint();
+            graph.refresh();
+            System.out.println(mxStyleRegistry.getValue("isStepOf"));
+        }catch (Exception e){
+            JOptionPane.showMessageDialog(dia, "Невозможно присвоить стиль 'isStepOf'", "Ошибка", JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     private void setAction(){
         graph.getModel().beginUpdate();
+        stepByStepButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                bridgesGraphics = graph.getSelectionCells();
+                setStyleMasBridgesGraphics();
+                setStyleIsStepOf();
+            }
+        });
         findBridges.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -246,8 +295,7 @@ public class MainWindow {
                             myWriter.close();
                             System.out.println("Successfully wrote to the file.");
                         } catch (Exception q) {
-                            System.out.println("An error occurred.");
-                            q.printStackTrace();
+                            JOptionPane.showMessageDialog(dia, "Файл невозможно сохранить", "Ошибка", JOptionPane.ERROR_MESSAGE);
                         }
                 }
             }
@@ -255,89 +303,93 @@ public class MainWindow {
         delEdge.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                Object[] edgesOfVertex;
-                Object[] q = graph.getChildCells(parent);
-                for(int i = 0; i < q.length; i++){
-                    mxCell tmp = (mxCell) q[i];
-                    if(tmp.isVertex()) {
-                        //создаём имя вершины
-                        int vertex = Integer.parseInt(tmp.getId()) - 1;
-                        addVertex(vertex);
-                        //создаём список для каждой вершины, туда поместим рёбра
-                        vertexCommunication.put(vertex, new ArrayList<Integer>());
-                        //получаем рёбра
-                        edgesOfVertex = graph.getEdges(tmp);
-                        for (int f = 0; f < edgesOfVertex.length;f++){
-                            mxCell tmp2 = (mxCell) edgesOfVertex[f];
-                            //создаём имя ребра
-                            int edge = Integer.parseInt(tmp2.getId());
-                            //переменный массив рёбер для добавления
-                            List<Integer> edges = vertexCommunication.get(vertex);
-                            //добавим ребро в промежуточный список и отсортируем
-                            edges.add(edge);
-                            Collections.sort(edges);
-                            //добавим полученный список в карту
-                            vertexCommunication.put(vertex, edges);
-                        }
-                        //System.out.println(vertexCommunication);
-                        //System.out.println();
-                    }
-                }
+                try {
 
-                //создание списка смежности
-                for (Map.Entry<Integer, List<Integer>> entry : vertexCommunication.entrySet()) {
-                    //текущий список рёбер
-                    List<Integer> tmp = entry.getValue();
-                    for (Map.Entry<Integer, List<Integer>> entry2 : vertexCommunication.entrySet()) {
-                        //необходимо пройтись по списку, чтобы узнать какие рёбра являются общими
-                        for (int i = 0; i < tmp.size(); i++) {
-                            //если ключи не равны и ребро содержится в другом списке
-                            if (!entry2.getKey().equals(entry.getKey()) && entry2.getValue().contains(tmp.get(i))) {
-                                addVertex(entry.getKey());
-                                if (vertexMap.get(entry.getKey()).contains(entry2.getKey())) {
-                                    continue;
-                                }
-                                addEdge(entry.getKey(), entry2.getKey());
+                    Object[] edgesOfVertex;
+                    Object[] q = graph.getChildCells(parent);
+                    for (int i = 0; i < q.length; i++) {
+                        mxCell tmp = (mxCell) q[i];
+                        if (tmp.isVertex()) {
+                            //создаём имя вершины
+                            int vertex = Integer.parseInt(tmp.getId()) - 1;
+                            addVertex(vertex);
+                            //создаём список для каждой вершины, туда поместим рёбра
+                            vertexCommunication.put(vertex, new ArrayList<Integer>());
+                            //получаем рёбра
+                            edgesOfVertex = graph.getEdges(tmp);
+                            for (int f = 0; f < edgesOfVertex.length; f++) {
+                                mxCell tmp2 = (mxCell) edgesOfVertex[f];
+                                //создаём имя ребра
+                                int edge = Integer.parseInt(tmp2.getId());
+                                //переменный массив рёбер для добавления
+                                List<Integer> edges = vertexCommunication.get(vertex);
+                                //добавим ребро в промежуточный список и отсортируем
+                                edges.add(edge);
+                                Collections.sort(edges);
+                                //добавим полученный список в карту
+                                vertexCommunication.put(vertex, edges);
                             }
+                            //System.out.println(vertexCommunication);
+                            //System.out.println();
                         }
                     }
-                }
-                System.out.println(vertexMap);
-                q= graph.getChildCells(parent);
-                mxCell[] onDel = new mxCell[q.length];
-                int tmp = 0;
-                System.out.println(q.length);
 
-                for(Object c: q){
-
-                    mxCell cell = (mxCell) c;
-
-                    if(cell.isVertex()) {
-                        System.out.println(c.toString());
-                    }
-                    else {
-                        if(graph.isCellSelected(cell)){
-                            onDel[tmp++] = cell;
-                            int id = Integer.parseInt(cell.getId());
-                            for(Map.Entry<Integer, List<Integer>> info : vertexCommunication.entrySet()) {
-                                for(Map.Entry<Integer, List<Integer>> info2 : vertexCommunication.entrySet()) {
-                                    if (info.getValue().contains(id) && info2.getValue().contains(id) &&
-                                            !info2.getKey().equals(info.getKey())) {
-                                        vertexMap.get(info2.getKey()).remove(info.getKey());
-                                        vertexMap.get(info.getKey()).remove(info2.getKey());
-                                        printGraph();
+                    //создание списка смежности
+                    for (Map.Entry<Integer, List<Integer>> entry : vertexCommunication.entrySet()) {
+                        //текущий список рёбер
+                        List<Integer> tmp = entry.getValue();
+                        for (Map.Entry<Integer, List<Integer>> entry2 : vertexCommunication.entrySet()) {
+                            //необходимо пройтись по списку, чтобы узнать какие рёбра являются общими
+                            for (int i = 0; i < tmp.size(); i++) {
+                                //если ключи не равны и ребро содержится в другом списке
+                                if (!entry2.getKey().equals(entry.getKey()) && entry2.getValue().contains(tmp.get(i))) {
+                                    addVertex(entry.getKey());
+                                    if (vertexMap.get(entry.getKey()).contains(entry2.getKey())) {
+                                        continue;
                                     }
-                                    //System.out.println(vertexCommunication);
+                                    addEdge(entry.getKey(), entry2.getKey());
                                 }
                             }
                         }
                     }
+                    System.out.println(vertexMap);
+                    q = graph.getChildCells(parent);
+                    mxCell[] onDel = new mxCell[q.length];
+                    int tmp = 0;
+                    System.out.println(q.length);
+
+                    for (Object c : q) {
+
+                        mxCell cell = (mxCell) c;
+
+                        if (cell.isVertex()) {
+                            System.out.println(c.toString());
+                        } else {
+                            if (graph.isCellSelected(cell)) {
+                                onDel[tmp++] = cell;
+                                int id = Integer.parseInt(cell.getId());
+                                for (Map.Entry<Integer, List<Integer>> info : vertexCommunication.entrySet()) {
+                                    for (Map.Entry<Integer, List<Integer>> info2 : vertexCommunication.entrySet()) {
+                                        if (info.getValue().contains(id) && info2.getValue().contains(id) &&
+                                                !info2.getKey().equals(info.getKey())) {
+                                            vertexMap.get(info2.getKey()).remove(info.getKey());
+                                            vertexMap.get(info.getKey()).remove(info2.getKey());
+                                            printGraph();
+                                        }
+                                        //System.out.println(vertexCommunication);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    graph.cellsRemoved(onDel);
+                    for (int i = 0; i < tmp; i++) {
+                        onDel[i].setParent(null);
+                    }
+                    printGraph();
+                }catch (Exception exc){
+
                 }
-                graph.cellsRemoved(onDel);
-                for (int i = 0; i < tmp; i++) {
-                    onDel[i].setParent(null);
-                }
-                printGraph();
             }
         });
         delBridges.addActionListener(new ActionListener() {
@@ -402,6 +454,7 @@ public class MainWindow {
         graph.refresh();
         graph.getModel().endUpdate();
     }
+
     private void createBridgeGraphics() {
         Object[] q1 = graph.getChildCells(parent);
         for (int i = 0; i < q1.length; i++) {
@@ -422,6 +475,9 @@ public class MainWindow {
         }
         System.out.println(Arrays.toString(bridgesGraphics));
     }
+
+
+
     private void addVertex(int vertexName) {
         if (!hasVertex(vertexName)) {
             vertexMap.put(vertexName, new ArrayList<Integer>());
@@ -431,6 +487,8 @@ public class MainWindow {
     private boolean hasVertex(int vertexName) {
         return vertexMap.containsKey(vertexName);
     }
+
+
 
     public void addEdge(Integer vertexName1, Integer vertexName2) {
         if (!hasVertex(vertexName1))

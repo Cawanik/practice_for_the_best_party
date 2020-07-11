@@ -14,7 +14,20 @@ public class Main {
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
             //UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
-
+            UIManager.put(
+                    "FileChooser.saveButtonText", "Загрузить");
+            UIManager.put(
+                    "FileChooser.cancelButtonText", "Отмена");
+            UIManager.put(
+                    "FileChooser.fileNameLabelText", "Наименование файла");
+            UIManager.put(
+                    "FileChooser.filesOfTypeLabelText", "Типы файлов");
+            UIManager.put(
+                    "FileChooser.lookInLabelText", "Директория");
+            UIManager.put(
+                    "FileChooser.saveInLabelText", "Сохранить в директории");
+            UIManager.put(
+                    "FileChooser.folderNameLabelText", "Путь директории");
         }catch(Exception el){
             el.printStackTrace();
         }
